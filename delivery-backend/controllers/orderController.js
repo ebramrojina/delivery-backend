@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const { sendNotificationToUser, sendNotificationToRole } = require('../services/notificationService');
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -19,6 +20,14 @@ const createOrder = async (req, res) => {
       deliveryAddress,
       status: 'created',
     });
+
+    // Let admins/branch managers know a new order needs a driver assigned.
+    sendNotificationToRole(
+      'admin',
+      'New order',
+      `A new order was created and needs a driver assigned.`,
+      { orderId: order._id.toString(), type: 'new_order' }
+    );
 
     res.status(201).json(order);
   } catch (err) {
@@ -125,6 +134,13 @@ const assignDriver = async (req, res) => {
     order.status = 'assigned';
     order.assignedAt = new Date();
     await order.save();
+
+    sendNotificationToUser(
+      driverId,
+      'New delivery assigned',
+      'You have been assigned a new order. Open the app to view it.',
+      { orderId: order._id.toString(), type: 'order_assigned' }
+    );
 
     res.status(200).json(order);
   } catch (err) {

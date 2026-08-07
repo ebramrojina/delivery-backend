@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    // Firebase Cloud Messaging device token, saved after login so the
+    // backend can push notifications to this user's device.
+    fcmToken: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
