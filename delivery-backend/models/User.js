@@ -31,6 +31,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // The app's current display language ('en' or 'ar'), sent alongside
+    // the FCM token so notifications can be written in the right language.
+    locale: {
+      type: String,
+      enum: ['en', 'ar'],
+      default: 'en',
+    },
   },
   { timestamps: true }
 );

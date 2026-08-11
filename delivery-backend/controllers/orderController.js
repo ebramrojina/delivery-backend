@@ -24,8 +24,7 @@ const createOrder = async (req, res) => {
     // Let admins/branch managers know a new order needs a driver assigned.
     sendNotificationToRole(
       'admin',
-      'New order',
-      `A new order was created and needs a driver assigned.`,
+      'new_order',
       { orderId: order._id.toString(), type: 'new_order' }
     );
 
@@ -137,8 +136,7 @@ const assignDriver = async (req, res) => {
 
     sendNotificationToUser(
       driverId,
-      'New delivery assigned',
-      'You have been assigned a new order. Open the app to view it.',
+      'order_assigned',
       { orderId: order._id.toString(), type: 'order_assigned' }
     );
 
