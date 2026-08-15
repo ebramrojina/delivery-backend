@@ -8,14 +8,32 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 // POST /api/orders  (customer)
 const createOrder = async (req, res) => {
   try {
-    const { pickupAddress, deliveryAddress } = req.body;
+    const { pickupAddress, deliveryAddress, branchId, branchName, items, orderTotal } = req.body;
 
     if (!pickupAddress || !deliveryAddress) {
       return res.status(400).json({ message: 'pickupAddress and deliveryAddress are required' });
     }
+    if (!branchId || !branchName) {
+      return res.status(400).json({ message: 'branchId and branchName are required' });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: 'items must be a non-empty array' });
+    }
+    for (const item of items) {
+      if (!item.name || typeof item.price !== 'number' || typeof item.quantity !== 'number') {
+        return res.status(400).json({ message: 'Each item requires name, price, and quantity' });
+      }
+    }
+    if (typeof orderTotal !== 'number' || orderTotal < 0) {
+      return res.status(400).json({ message: 'orderTotal must be a non-negative number' });
+    }
 
     const order = await Order.create({
       customerId: req.user._id,
+      branchId,
+      branchName,
+      items,
+      orderTotal,
       pickupAddress,
       deliveryAddress,
       status: 'created',

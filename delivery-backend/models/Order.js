@@ -9,6 +9,15 @@ const addressSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const orderItemSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    price: { type: Number, required: true, min: 0 },
+    quantity: { type: Number, required: true, min: 1, default: 1 },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     customerId: {
@@ -26,6 +35,29 @@ const orderSchema = new mongoose.Schema(
       enum: ['created', 'assigned', 'picked_up', 'out_for_delivery', 'delivered'],
       default: 'created',
       required: true,
+    },
+    branchId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    branchName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    items: {
+      type: [orderItemSchema],
+      required: true,
+      validate: {
+        validator: (arr) => Array.isArray(arr) && arr.length > 0,
+        message: 'Order must contain at least one item',
+      },
+    },
+    orderTotal: {
+      type: Number,
+      required: true,
+      min: 0,
     },
     pickupAddress: {
       type: addressSchema,
